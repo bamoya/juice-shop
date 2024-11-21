@@ -44,75 +44,31 @@ jobs:
           retention-days: 30
 
   sca:
-    name: Software Composition Analysis
     runs-on: ubuntu-latest
+    name: depecheck_test
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          
-      - name: Install dependencies
-        run: npm i
-
-      # Create Dependency-Check config file
-      - name: Create Dependency-Check Config
-        run: |
-          cat > dependency-check-config.json << 'EOF'
-          {
-            "scanners": [
-              "nodejs",
-              "npm",
-              "typescript",
-              "yarn"
-            ],
-            "suppressionFile": "suppression.xml",
-            "failOnCVSS": 7,
-            "excludes": [
-              "**/frontend/dist/**",
-              "**/ftp/**",
-              "**/*.vtt",
-              "**/*.md",
-              "**/test/**",
-              "**/tests/**"
-            ]
-          }
-          EOF
-
-      # Create suppression file for any false positives
-      - name: Create Suppression File
-        run: |
-          cat > suppression.xml << 'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-          </suppressions>
-          EOF
-        
-      - name: OWASP Dependency-Check
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Clean and Install dependencies
+        run: | 
+          npm cache clean --force
+          npm install
+      - name: Depcheck
         uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
         with:
-          project: 'OWASP Juice Shop'
+          project: 'test'
           path: '.'
           format: 'HTML'
-          out: 'reports'
+          out: 'reports' # this is the default, no need to specify unless you wish to override it
           args: >
             --failOnCVSS 7
-            --enableExperimental
-            --suppression suppression.xml
-            --log dependency-check.log
-            --config dependency-check-config.json
-          
-      - name: Upload Dependency Check Results
-        uses: actions/upload-artifact@v3
+            --enableRetired
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
         with:
-          name: dependency-check-report
-          path: |
-            reports
-            dependency-check.log
-          retention-days: 30
+           name: Depcheck report
+           path: ${{github.workspace}}/reports
 
   test:
     needs: [sast, sca]
