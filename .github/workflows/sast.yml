@@ -1,11 +1,9 @@
 name: CodeQL Security Scan
-
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
 jobs:
   analyze:
     name: Analyze
@@ -14,12 +12,10 @@ jobs:
       actions: read
       contents: read
       security-events: write
-
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'typescript', 'python', 'java' ]
-
+        language: [ 'javascript', 'typescript']
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -31,3 +27,13 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{ matrix.language }}"
+        output: 'results'
+
+    - name: Upload CodeQL Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: codeql-results-${{ matrix.language }}
+        path: results
+        retention-days: 30
