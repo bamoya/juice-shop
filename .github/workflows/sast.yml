@@ -11,7 +11,7 @@ env:
   IMAGE_TAG: latest
   AWS_REGION: ${{ secrets.AWS_REGION }}
   EC2_HOST: ${{ secrets.EC2_HOST }}
-  S3_BUCKET: ${{ secrets. }}
+  S3_BUCKET: ${{ secrets.S3_BUCKET }}
   S3_KEY_PATH: ${{ secrets.S3_KEY_PATH }}
 
 jobs:
