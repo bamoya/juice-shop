@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
            name: Depcheck report
-           path: ${{github.workspace}}/reports
+           path: ${{github.workspace}}
 
   test:
     needs: [sast, sca]
